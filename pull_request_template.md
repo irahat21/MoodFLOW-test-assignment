@@ -7,9 +7,9 @@ Provide a clear and concise description of the feature or fix.
 Link the issue number (if fixed issue)
 
 ## Changes Made
-- List major changes
-- List structural updates
-- List refactoring (if any)
+- Summary of Key Changes
+- Updates to Project Structure
+- Code Optimization (if any)
 
 ## Testing
 Describe how this change was tested.
