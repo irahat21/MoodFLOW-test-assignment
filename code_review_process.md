@@ -17,7 +17,6 @@ The team will use a Pull Request workflow to ensure all code changes are reviewe
 1. A Pull Request will be created from the feature branch into the `main` branch.
 2. The PR must include a clear and meaningful description using the Pull Request template.
 3. At least **one team member** must review and approve the PR before it can be merged.
-4. The team member assigned to review 
 
 ---
 
