@@ -13,7 +13,7 @@ import {
   updatePassword,
   type User,
 } from "firebase/auth";
-import { Lock, Mail } from "lucide-react";
+import { CheckCircle2, Lock, Mail } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { getLinkedProviders } from "@/lib/authProviders";
 import Navbar from "@/components/Navbar";
@@ -158,7 +158,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (addSuccess) {
-      const t = setTimeout(() => setAddSuccess(false), 4000);
+      const t = setTimeout(() => setAddSuccess(false), 6000);
       return () => clearTimeout(t);
     }
   }, [addSuccess]);
@@ -194,6 +194,23 @@ export default function SettingsPage() {
               ← Back to dashboard
             </Link>
           </div>
+
+          {addSuccess && (
+            <div
+              className="flex items-start gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/90 dark:bg-emerald-950/40 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100"
+              role="status"
+              aria-live="polite"
+            >
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" aria-hidden />
+              <div>
+                <p className="font-semibold">Password added</p>
+                <p className="mt-0.5 text-emerald-800/90 dark:text-emerald-200/90">
+                  You can sign in with email and password as well as Google. Use &quot;Change password&quot; below if you
+                  need to update it later.
+                </p>
+              </div>
+            </div>
+          )}
 
           <section className="glass rounded-3xl bg-white/80 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800/80 shadow-lg shadow-slate-900/5 p-6 md:p-8 space-y-6">
             <div>
@@ -349,11 +366,6 @@ export default function SettingsPage() {
                 {addError && (
                   <p className="text-sm text-red-600 dark:text-red-400" role="alert">
                     {addError}
-                  </p>
-                )}
-                {addSuccess && (
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400" role="status">
-                    Password added. You can now sign in with email and password as well.
                   </p>
                 )}
 
