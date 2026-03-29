@@ -23,7 +23,7 @@ export default function ProfilePage() {
 
   const navItems = [
     { label: "Dashboard", href: "/dashboard" },
-    { label: "Mood log", href: "#" },
+    { label: "Mood log", href: "/dashboard/history" },
     { label: "Trends", href: "#" },
     { label: "Insights", href: "#" },
     { label: "Profile", href: "/dashboard/profile", active: true },
