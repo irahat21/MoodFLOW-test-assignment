@@ -1,13 +1,17 @@
 "use client"; 
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
+import AvatarDropdown from "@/components/AvatarDropdown";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import {
   collection,
   addDoc,
   serverTimestamp,
+  doc,
+  getDoc,
   getDocs,
   query,
   orderBy,
@@ -42,6 +46,7 @@ function formatEntryDate(date: any) {
   return "No date";
 }
 
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null); // use this to define the current user
@@ -51,14 +56,33 @@ export default function DashboardPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const docRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+  
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          setEmail(userData.email);
+          setUsername(userData.username);
+        }
+      }
+  
       setUser(currentUser);
     });
   
     return () => unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   useEffect(() => {
   if (!user) {
@@ -184,7 +208,19 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-50">
-      <Navbar />
+      
+      <div className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between">
+      
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+              M
+            </div>
+            <span className="font-display font-bold text-xl tracking-tight">MoodFLOW</span>
+          </Link>
+
+          <AvatarDropdown user={user} open={open} setOpen={setOpen} onLogout={handleLogout} />
+
+      </div>
 
       <div className="pt-20 pb-16 px-6">
         <div className="max-w-7xl mx-auto space-y-8">
