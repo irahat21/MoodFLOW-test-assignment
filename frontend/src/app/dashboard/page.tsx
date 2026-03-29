@@ -1,12 +1,51 @@
 "use client"; 
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import Navbar from "@/components/Navbar";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  query,
+  orderBy,
+  limit
+} from "firebase/firestore";
+
+
+type RecentEntry = {
+  id: string;
+  emojiScore: number;
+  note: string;
+  date: any;
+};
+
+const emojiMap: Record<number, string> = {
+  1: "😞",
+  2: "🙁",
+  3: "😐",
+  4: "🙂",
+  5: "😄",
+};
+
+function formatEntryDate(date: any) {
+  if (!date) return "No date";
+  if (typeof date.toDate === "function") {
+    return date.toDate().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+  return "No date";
+}
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null); // use this to define the current user
+  const [recentEntries, setRecentEntries] = useState<RecentEntry[]>([]);
   const [emojiScore, setEmojiScore] = useState<number | null>(null);
   const [userInput, setUserInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -20,6 +59,32 @@ export default function DashboardPage() {
   
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+  if (!user) {
+    setRecentEntries([]);
+    return;
+  }
+
+  const fetchRecentEntries = async () => {
+    try {
+      const ref = collection(db, "users", user.uid, "moodEntries");
+      const q = query(ref, orderBy("date", "desc"), limit(3));
+      const snap = await getDocs(q);
+
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<RecentEntry, "id">),
+      }));
+
+      setRecentEntries(data);
+    } catch (err) {
+      console.error("Failed to fetch recent entries:", err);
+    }
+  };
+
+  fetchRecentEntries();
+}, [user, saved]);
 
   const moods = [
     { label: "Very Bad", symbol: "😞", color: "border-amber-300", score: 1},
@@ -114,24 +179,6 @@ export default function DashboardPage() {
       return () => clearTimeout(timer);
     }
   }, [saved]);
-
-  const recentEntries = [
-    {
-      date: "March 1, 2026",
-      mood: "😄",
-      text: "Finished my CSC-456 project proposal. Feeling accomplished!"
-    },
-    {
-      date: "February 20, 2026",
-      mood: "🙂",
-      text: "Studied for midterms. Long day but made progress."
-    },
-    {
-      date: "February 28, 2026",
-      mood: "😐",
-      text: "Had a productive study session at the library."
-    }
-  ];
 
   const ranges = ["7 Days", "30 Days", "90 Days", "All Time"];
 
@@ -260,33 +307,44 @@ export default function DashboardPage() {
                     <span className="w-2 h-2 rounded-full bg-blue-500" />
                     Recent Entries
                   </h2>
-                  <span className="text-xs text-slate-400">Last 3 days logged</span>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/dashboard/history")}
+                    className="text-xs text-brand-500 hover:text-brand-600 hover:underline font-medium transition-colors"
+                  >
+                    View All →
+                  </button>
                 </div>
 
                 <div className="px-6 py-4 space-y-4">
-                  {recentEntries.map((entry, idx) => (
-                    <article
-                      key={idx}
-                      className="flex items-start gap-4 rounded-2xl border border-slate-100 dark:border-slate-900 bg-slate-50/80 dark:bg-slate-950/60 px-4 py-3"
-                    >
-                      <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 text-xl shadow-sm">
-                        {entry.mood}
+                  {recentEntries.length === 0 ? (
+                    <div className="rounded-2xl border border-slate-100 dark:border-slate-900 bg-slate-50/80 dark:bg-slate-950/60 px-4 py-6 text-sm text-slate-500 dark:text-slate-400">
+                      No mood entries yet. Save your first entry above.
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between gap-3 mb-1.5">
-                          <p className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-900 text-slate-50">
-                            {entry.date}
-                          </p>
-                          <div className="flex items-center gap-1.5 text-slate-400">
-                            <div className="w-6 h-6 rounded-full border border-slate-300 dark:border-slate-700" />
-                          </div>
+                  ) : (
+                    recentEntries.map((entry) => (
+                      <article
+                        key={entry.id}
+                        className="flex items-start gap-4 rounded-2xl border border-slate-100 dark:border-slate-900 bg-slate-50/80 dark:bg-slate-950/60 px-4 py-3"
+                      >
+                        <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 text-xl shadow-sm">
+                          {emojiMap[entry.emojiScore] ?? "🙂"}
                         </div>
-                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                          {entry.text}
-                        </p>
-                      </div>
-                    </article>
-                  ))}
+
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between gap-3 mb-1.5">
+                            <p className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-900 text-slate-50">
+                              {formatEntryDate(entry.date)}
+                            </p>
+                          </div>
+
+                          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                            {entry.note}
+                          </p>
+                        </div>
+                      </article>
+                    ))
+                  )}
                 </div>
               </section>
             </div>
