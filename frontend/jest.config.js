@@ -9,6 +9,10 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['<rootDir>/tests/'],
 
+  moduleNameMapper: {
+  "^@/(.*)$": "<rootDir>/src/$1",
+  },
+
   collectCoverage: true,
   collectCoverageFrom: [
     "src/**/*.{js,jsx,ts,tsx}",
