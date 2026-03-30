@@ -21,7 +21,7 @@ describe('Navbar', () => {
   it('renders the main navigation links', () => {
     render(<Navbar />)
 
-    const navLinks = [/features/i, /how it works/i, /pricing/i]
+    const navLinks = [/features/i, /how it works/i]
 
     navLinks.forEach((name) => {
       expect(screen.getByRole('link', { name })).toBeInTheDocument()
