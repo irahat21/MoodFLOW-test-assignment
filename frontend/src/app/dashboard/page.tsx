@@ -11,8 +11,6 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-  doc,
-  getDoc,
   getDocs,
   query,
   orderBy,
@@ -65,17 +63,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-  
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          setEmail(userData.email);
-          setUsername(userData.username);
-        }
-      }
-  
       setUser(currentUser);
     });
   
@@ -243,7 +230,12 @@ export default function DashboardPage() {
             <span className="font-display font-bold text-xl tracking-tight">MoodFLOW</span>
           </Link>
 
-          <AvatarDropdown user={user} open={open} setOpen={setOpen} onLogout={handleLogout} />
+          <AvatarDropdown 
+            user={user} 
+            open={open} 
+            setOpen={setOpen} 
+            onLogout={handleLogout} 
+          />
 
       </div>
 
