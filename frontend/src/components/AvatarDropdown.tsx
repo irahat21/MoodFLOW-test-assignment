@@ -26,6 +26,7 @@ export default function AvatarDropdown({
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
+    const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
     useEffect(() => {
         const getCredentials = async () => {
@@ -37,6 +38,7 @@ export default function AvatarDropdown({
                     const userData = docSnap.data();
                     setEmail(userData.email);
                     setUsername(userData.username);
+                    setProfilePicture(userData.profilePicture ?? null);
                 }
                 }
         };
@@ -86,7 +88,15 @@ export default function AvatarDropdown({
             onClick={() => setOpen(!open)}
             className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-400"
           >
-            {String(username)[0]}
+            {profilePicture ? (
+              <img
+                src={profilePicture}
+                alt="avatar"
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              String(username)[0]
+            )}
           </button>
 
           { open && (
