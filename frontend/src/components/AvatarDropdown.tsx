@@ -15,6 +15,7 @@ export default function AvatarDropdown({
     open, 
     setOpen,
     onLogout }: { 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         user: any,
         open: boolean, 
         setOpen: (prev: boolean) => void ,
@@ -59,7 +60,7 @@ export default function AvatarDropdown({
         return () => {
           document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, []);
+    }, [setOpen]);
 
     const rows = [
         {
@@ -89,6 +90,7 @@ export default function AvatarDropdown({
             className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-400"
           >
             {profilePicture ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={profilePicture}
                 alt="avatar"
